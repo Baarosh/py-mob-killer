@@ -1,10 +1,13 @@
-
-import numpy as np
-import cv2 as cv
 from typing import Tuple
 
+import cv2 as cv
+import numpy as np
+
+
 class ImageProcessor:
-    def __init__(self, target_image_path: str, threshold: float, max_results: int) -> None:
+    def __init__(
+        self, target_image_path: str, threshold: float, max_results: int
+    ) -> None:
         self._target_image = cv.imread(target_image_path, cv.IMREAD_UNCHANGED)
         self._target_image_height, self._target_image_width = self._target_image.shape
         self._screenshot = None
@@ -16,9 +19,12 @@ class ImageProcessor:
         pass
 
     def find(self, screenshot: np.ndarray) -> Tuple:
-        processing_result = cv.matchTemplate(screenshot, self._target_image, self._method)
-        locations_of_found_instances = zip(*np.where(processing_result >= self._threshold[::-1]))
-
+        processing_result = cv.matchTemplate(
+            screenshot, self._target_image, self._method
+        )
+        locations_of_found_instances = zip(
+            *np.where(processing_result >= self._threshold[::-1])
+        )
 
     @property.setter
     def set_method(self, method: int) -> None:

@@ -1,0 +1,2 @@
+class BotKiller:
+    pass

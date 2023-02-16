@@ -1,5 +1,7 @@
 from typing import Set
+
 import win32gui
+
 
 def get_windows_names() -> Set[str]:
     windows_names = set()
