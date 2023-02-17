@@ -1,0 +1,13 @@
+parameters:
+    hMin: null
+    sMin: null
+    vMin: null
+    hMax: null
+    sMax: null
+    vMax: null
+    sAdd: null
+    sSub: null
+    vAdd: null
+    vSub: null
+
+

@@ -1,16 +1,11 @@
-from typing import Set
 
-import win32gui
+from yaml import safe_load as yaml_safe_load, YAMLError
+from typing import Dict, Optional
 
-
-def get_windows_names() -> Set[str]:
-    windows_names = set()
-    win32gui.EnumWindows(
-        lambda window_handler, y: windows_names.add(
-            win32gui.GetWindowText(window_handler)
-        )
-        if win32gui.IsWindowVisible(window_handler)
-        else None,
-        None,
-    )
-    return windows_names
+def load_yaml_document(path: str) -> Optional[Dict[str, Optional[int]]]:
+    with open(path, "r") as stream:
+        try:
+            return yaml_safe_load(stream)
+        except YAMLError as exc:
+            # log instead
+            print(f"Failed to load yaml document. Traceback: {exc}")

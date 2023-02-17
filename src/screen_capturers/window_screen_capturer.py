@@ -63,7 +63,7 @@ class WindowScreenCapturer:
         except Exception as e:
             raise Exception(f"Window coordinates cannot be found. Traceback: {e}")
 
-    @property  # alternative: set separately getter, setter, deleter -> @property.getter
+    @property  # alternative: set separately getter, setter, deleter -> @property.setter
     def window_size(self):
         return self._window_size_calculated
 
