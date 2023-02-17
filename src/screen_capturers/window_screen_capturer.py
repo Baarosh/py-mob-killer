@@ -4,6 +4,7 @@ import numpy as np
 import win32con
 import win32gui
 import win32ui
+from utils import Mat
 
 
 class WindowScreenCapturer:
@@ -22,7 +23,7 @@ class WindowScreenCapturer:
             self._window_size_calculated["bottom"] - self._window_size_calculated["top"]
         )
 
-    def make_screenshot(self) -> np.ndarray:
+    def make_screenshot(self) -> Mat:
         wDC = win32gui.GetWindowDC(self._window_handler)
         dcObj = win32ui.CreateDCFromHandle(wDC)
         cDC = dcObj.CreateCompatibleDC()
@@ -64,7 +65,7 @@ class WindowScreenCapturer:
             raise Exception(f"Window coordinates cannot be found. Traceback: {e}")
 
     @property  # alternative: set separately getter, setter, deleter -> @property.setter
-    def window_size(self):
+    def window_size(self) -> Dict[str, int]:
         return self._window_size_calculated
 
     @staticmethod
@@ -74,8 +75,8 @@ class WindowScreenCapturer:
         return {
             "left": window_size["left"] + offsets["left"],
             "top": window_size["top"] + offsets["top"],
-            "right": window_size["right"] - offsets["right"],
-            "bottom": window_size["bottom"] - offsets["bottom"],
+            "right": window_size["right"] + offsets["right"],
+            "bottom": window_size["bottom"] + offsets["bottom"],
         }
 
     @staticmethod

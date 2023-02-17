@@ -15,4 +15,5 @@ def get_windows_names() -> Set[str]:
     )
     return windows_names
 
+
 print(get_windows_names())
