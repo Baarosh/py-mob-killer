@@ -17,13 +17,20 @@ if __name__ == "__main__":
     window_name = "Steam"
     target_image_path = ""
     probability_threshold = 0.65
-    max_results = 5
+    max_results = None
     detection_method = TM_CCOEFF_NORMED
+    group_threshold = 1
+    group_eps = 0.5
     hsv_filter_parameters = load_yaml_document("filters/hsv_filter_parameters.yaml")
 
     window_screen_capturer = WindowScreenCapturer(window_name, offsets=(0, 0, 0, 0))
     image_processor = ImageProcessor(
-        target_image_path, probability_threshold, max_results, detection_method
+        target_image_path,
+        probability_threshold,
+        max_results,
+        detection_method,
+        group_threshold,
+        group_eps,
     )
     hsv_filter = HSVFilter(hsv_filter_parameters)
     killing_bot = BotKiller()
