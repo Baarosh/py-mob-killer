@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import cv2 as cv
 import numpy as np
-from utils import Mat
+from py_mob_killer.utils import Mat
 
 
 class ImageProcessor:
@@ -47,7 +47,9 @@ class ImageProcessor:
             return np.array([], dtype=np.int32).reshape(0, 4)
         return found_targets
 
-    def _get_rectangles_position_over_targets(self, targets: List[Tuple[int]]) -> List[List[int]]:
+    def _get_rectangles_position_over_targets(
+        self, targets: List[Tuple[int]]
+    ) -> List[List[int]]:
         rectangles = []
         for target in targets:
             rectangle = [

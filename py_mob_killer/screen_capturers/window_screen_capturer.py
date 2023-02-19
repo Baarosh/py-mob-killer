@@ -4,7 +4,7 @@ import numpy as np
 import win32con
 import win32gui
 import win32ui
-from utils import Mat
+from py_mob_killer.utils import Mat
 
 
 class WindowScreenCapturer:

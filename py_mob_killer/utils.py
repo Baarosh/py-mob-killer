@@ -2,6 +2,7 @@ from yaml import safe_load as yaml_safe_load, safe_dump as yaml_safe_dump, YAMLE
 from typing import Dict, Optional
 import numpy as np
 
+
 def load_yaml_document(path: str) -> Optional[Dict[str, int]]:
     with open(path, "r") as stream:
         try:
@@ -10,6 +11,7 @@ def load_yaml_document(path: str) -> Optional[Dict[str, int]]:
             # log instead
             print(f"Failed to load yaml document. Traceback: {exc}")
 
+
 def dump_yaml_document(data: Dict[str, int], path: str) -> None:
     with open(path, "w") as stream:
         try:
@@ -17,5 +19,6 @@ def dump_yaml_document(data: Dict[str, int], path: str) -> None:
         except YAMLError as exc:
             # log instead
             print(f"Failed to dump yaml document. Traceback: {exc}")
+
 
 Mat = np.ndarray[int, np.dtype[np.generic]]
