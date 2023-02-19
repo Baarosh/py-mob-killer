@@ -9,9 +9,9 @@ import cv2 as cv
 if __name__ == "__main__":
     calibration_mode = False
 
-    window_name = ""
+    window_name = "Ghost FlyFF - Mandarynka"
     offsets = (20, 20, -20, -20)
-    target_image_path = "src/targets/.jpg"
+    target_image_path = "src/targets/game_nickname.jpg"
     probability_threshold = 0.65
     max_results = None
     detection_method = cv.TM_CCOEFF_NORMED
