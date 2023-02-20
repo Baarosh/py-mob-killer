@@ -1,37 +1,34 @@
-from typing import Dict, Optional, Union
 import numpy as np
 import cv2 as cv
 from py_mob_killer.utils import dump_yaml_document, load_yaml_document
-from py_mob_killer.utils import Mat
-from pathlib import Path
 
 
 class HSVFilter:
-    def __init__(self, parameters_path: Union[str, Path]) -> None:
-        self._parameters = load_yaml_document(parameters_path)
+    def __init__(self, params_path):
+        self._params_path = params_path
+        self._params = self._load_params_from_document()
         self._gui_window_name = "Trackbar"
 
-    def apply(self, screenshot: Mat) -> Mat:
+    def apply(self, screenshot):
         hsv = cv.cvtColor(screenshot, cv.COLOR_BGR2HSV)
         h, s, v = cv.split(hsv)
-        s = self._shift_channel(s, self._parameters["sAdd"])
-        s = self._shift_channel(s, -self._parameters["sSub"])
-        v = self._shift_channel(v, self._parameters["vAdd"])
-        v = self._shift_channel(v, -self._parameters["vSub"])
+        s = self._shift_channel(s, self._params["sAdd"])
+        s = self._shift_channel(s, -self._params["sSub"])
+        v = self._shift_channel(v, self._params["vAdd"])
+        v = self._shift_channel(v, -self._params["vSub"])
         hsv = cv.merge([h, s, v])
-
         lower = np.array(
             [
-                self._parameters["hMin"],
-                self._parameters["sMin"],
-                self._parameters["vMin"],
+                self._params["hMin"],
+                self._params["sMin"],
+                self._params["vMin"],
             ]
         )
         upper = np.array(
             [
-                self._parameters["hMax"],
-                self._parameters["sMax"],
-                self._parameters["vMax"],
+                self._params["hMax"],
+                self._params["sMax"],
+                self._params["vMax"],
             ]
         )
         mask = cv.inRange(hsv, lower, upper)
@@ -53,47 +50,22 @@ class HSVFilter:
             c[c > lim] -= amount
         return c
 
-    def initialize_calibration_gui(self) -> None:
-        # make better
+    def initialize_calibration_gui(self):
         cv.namedWindow(self._gui_window_name, cv.WINDOW_NORMAL)
         cv.resizeWindow(self._gui_window_name, 350, 700)
+        for param in self._params:
+            if self._params[param] in ("hMin", "hMax"):
+                cv.createTrackbar(param, self._gui_window_name, 0, 179, 1)
+            else:
+                cv.createTrackbar(param, self._gui_window_name, 0, 255, 1)
+            cv.setTrackbarPos(param, self._gui_window_name, param)
 
-        def nothing(position):
-            ...
+    def update_params_from_calibration_gui(self):
+        for param in self._params:
+            self._params[param] = cv.getTrackbarPos(param, self._gui_window_name)
 
-        cv.createTrackbar("hMin", self._gui_window_name, 0, 179, nothing)
-        cv.createTrackbar("sMin", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("vMin", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("hMax", self._gui_window_name, 0, 179, nothing)
-        cv.createTrackbar("sMax", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("vMax", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("sAdd", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("sSub", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("vAdd", self._gui_window_name, 0, 255, nothing)
-        cv.createTrackbar("vSub", self._gui_window_name, 0, 255, nothing)
+    def dump_params_to_document(self):
+        dump_yaml_document(self._params, self._params_path)
 
-        cv.setTrackbarPos("hMin", self._gui_window_name, self._parameters["hMin"])
-        cv.setTrackbarPos("sMin", self._gui_window_name, self._parameters["sMin"])
-        cv.setTrackbarPos("vMin", self._gui_window_name, self._parameters["vMin"])
-        cv.setTrackbarPos("hMax", self._gui_window_name, self._parameters["hMax"])
-        cv.setTrackbarPos("sMax", self._gui_window_name, self._parameters["sMax"])
-        cv.setTrackbarPos("vMax", self._gui_window_name, self._parameters["vMax"])
-        cv.setTrackbarPos("sAdd", self._gui_window_name, self._parameters["sAdd"])
-        cv.setTrackbarPos("sSub", self._gui_window_name, self._parameters["sSub"])
-        cv.setTrackbarPos("vAdd", self._gui_window_name, self._parameters["vAdd"])
-        cv.setTrackbarPos("vSub", self._gui_window_name, self._parameters["vSub"])
-
-    def update_parameters_from_calibration_gui(self) -> None:
-        self._parameters["hMin"] = cv.getTrackbarPos("hMin", self._gui_window_name)
-        self._parameters["sMin"] = cv.getTrackbarPos("sMin", self._gui_window_name)
-        self._parameters["vMin"] = cv.getTrackbarPos("vMin", self._gui_window_name)
-        self._parameters["hMax"] = cv.getTrackbarPos("hMax", self._gui_window_name)
-        self._parameters["sMax"] = cv.getTrackbarPos("sMax", self._gui_window_name)
-        self._parameters["vMax"] = cv.getTrackbarPos("vMax", self._gui_window_name)
-        self._parameters["sAdd"] = cv.getTrackbarPos("sAdd", self._gui_window_name)
-        self._parameters["sSub"] = cv.getTrackbarPos("sSub", self._gui_window_name)
-        self._parameters["vAdd"] = cv.getTrackbarPos("vAdd", self._gui_window_name)
-        self._parameters["vSub"] = cv.getTrackbarPos("vSub", self._gui_window_name)
-
-    def dump_parameters_to_document(self, path: str) -> None:
-        dump_yaml_document(self._parameters, path)
+    def _load_params_from_document(self):
+        return load_yaml_document(self._params_path)

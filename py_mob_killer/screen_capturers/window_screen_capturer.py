@@ -1,97 +1,60 @@
-from typing import Dict, Tuple
-
 import numpy as np
 import win32con
 import win32gui
 import win32ui
-from py_mob_killer.utils import Mat
 
 
 class WindowScreenCapturer:
-    def __init__(self, window_name: str, offsets: Tuple[int, int, int, int]) -> None:
-        self._window_handler = self._get_window_handler(window_name)
-        self._window_size_initial = self._get_window_size()
-        self._offsets = self._get_offsets(offsets)
-        self._window_size_calculated = self._calculate_window_size(
-            self._window_size_initial, self._offsets
-        )
+    def __init__(self, window_name, offset):
+        self._window_name = window_name
+        self._offset = offset
+        self._handler = self._get_window_handler()
+        self._coordinates = self._get_window_coordinates()
+        self._width = self._coordinates["right"] - self._coordinates["left"]
+        self._height = self._coordinates["bottom"] - self._coordinates["top"]
 
-        self._window_width_calculated = (
-            self._window_size_calculated["right"] - self._window_size_calculated["left"]
-        )
-        self._window_height_calculated = (
-            self._window_size_calculated["bottom"] - self._window_size_calculated["top"]
-        )
-
-    def make_screenshot(self) -> Mat:
-        wDC = win32gui.GetWindowDC(self._window_handler)
+    def make_screenshot(self):
+        wDC = win32gui.GetWindowDC(self._handler)
         dcObj = win32ui.CreateDCFromHandle(wDC)
         cDC = dcObj.CreateCompatibleDC()
         dataBitMap = win32ui.CreateBitmap()
-        dataBitMap.CreateCompatibleBitmap(
-            dcObj, self._window_width_calculated, self._window_height_calculated
-        )
+        dataBitMap.CreateCompatibleBitmap(dcObj, self._width, self._height)
         cDC.SelectObject(dataBitMap)
         cDC.BitBlt(
             (0, 0),
-            (self._window_width_calculated, self._window_height_calculated),
+            (self._width, self._height),
             dcObj,
-            (self._offsets["left"], self._offsets["top"]),
+            (self._offset[0], self._offset[1]),
             win32con.SRCCOPY,
         )
         signedIntsArray = dataBitMap.GetBitmapBits(True)
         img = np.fromstring(signedIntsArray, dtype="uint8")
-        img.shape = (self._window_height_calculated, self._window_width_calculated, 4)
-
+        img.shape = (self._height, self._width, 4)
         dcObj.DeleteDC()
         cDC.DeleteDC()
-        win32gui.ReleaseDC(self._window_handler, wDC)
+        win32gui.ReleaseDC(self._handler, wDC)
         win32gui.DeleteObject(dataBitMap.GetHandle())
-
         img = img[..., :3]
         img = np.ascontiguousarray(img)
         return img
 
-    def _get_window_size(self) -> Dict[str, int]:
+    def _get_window_coordinates(self):
         try:
-            window_size = win32gui.GetWindowRect(self._window_handler)
-            return {
-                "left": window_size[0],
-                "top": window_size[1],
-                "right": window_size[2],
-                "bottom": window_size[3],
-            }
+            window_size = win32gui.GetWindowRect(self._handler)
         except Exception as e:
             raise Exception(f"Window coordinates cannot be found. Traceback: {e}")
+        else:
+            return {
+                "left": window_size[0] + self._offset[0],
+                "top": window_size[1] + self._offset[1],
+                "right": window_size[2] + self._offset[2],
+                "bottom": window_size[3] + self._offset[3],
+            }
 
-    @property  # alternative: set separately getter, setter, deleter -> @property.setter
-    def window_size(self) -> Dict[str, int]:
-        return self._window_size_calculated
-
-    @staticmethod
-    def _calculate_window_size(
-        window_size: Dict[str, int], offsets: Dict[str, int]
-    ) -> Dict[str, int]:
-        return {
-            "left": window_size["left"] + offsets["left"],
-            "top": window_size["top"] + offsets["top"],
-            "right": window_size["right"] + offsets["right"],
-            "bottom": window_size["bottom"] + offsets["bottom"],
-        }
-
-    @staticmethod
-    def _get_window_handler(window_name: str) -> int:
+    def _get_window_handler(self):
         try:
-            window_handler = win32gui.FindWindow(None, window_name)
-            return window_handler
+            window_handler = win32gui.FindWindow(None, self._window_name)
         except Exception as e:
             raise Exception(f"Window with given name cannot be found. Traceback: {e}")
-
-    @staticmethod
-    def _get_offsets(offsets) -> Dict[str, int]:
-        return {
-            "left": offsets[0],
-            "top": offsets[1],
-            "right": offsets[2],
-            "bottom": offsets[3],
-        }
+        else:
+            return window_handler
