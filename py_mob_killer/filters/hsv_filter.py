@@ -4,10 +4,12 @@ from py_mob_killer.utils import dump_yaml_document, load_yaml_document
 
 
 class HSVFilter:
+    GUI_WINDOW_NAME = "Trackbar"
+
     def __init__(self, params_path):
         self._params_path = params_path
         self._params = self._load_params_from_document()
-        self._gui_window_name = "Trackbar"
+        self._gui_window_name = self.GUI_WINDOW_NAME
 
     def apply(self, screenshot):
         hsv = cv.cvtColor(screenshot, cv.COLOR_BGR2HSV)
@@ -55,9 +57,9 @@ class HSVFilter:
         cv.resizeWindow(self._gui_window_name, 350, 700)
         for param in self._params:
             if self._params[param] in ("hMin", "hMax"):
-                cv.createTrackbar(param, self._gui_window_name, 0, 179, 1)
+                cv.createTrackbar(param, self._gui_window_name, 0, 179, ...)
             else:
-                cv.createTrackbar(param, self._gui_window_name, 0, 255, 1)
+                cv.createTrackbar(param, self._gui_window_name, 0, 255, ...)
             cv.setTrackbarPos(param, self._gui_window_name, param)
 
     def update_params_from_calibration_gui(self):
@@ -67,5 +69,5 @@ class HSVFilter:
     def dump_params_to_document(self):
         dump_yaml_document(self._params, self._params_path)
 
-    def load_params_from_document(self):
+    def _load_params_from_document(self):
         return load_yaml_document(self._params_path)

@@ -1,64 +1,53 @@
 import cv2 as cv
 import numpy as np
-from py_mob_killer.utils import dump_yaml_document, load_yaml_document
+
+DETECTION_THRESHOLD = 0.65
+DETECTION_METHOD = cv.TM_CCOEFF_NORMED
+DETECTION_MAX_RESULTS = None
+GROUPING_TRESHOLD = 1
+GROUPING_EPS = 0.5
+LINE_COLOR = (255, 0, 255)
+LINE_TYPE = cv.LINE_4
 
 
 class ObjectDetector:
-    def __init__(self, object_path, params_path):
-        self._params_path = params_path
-        self._params = self._load_params_from_document()
+    def __init__(self, object_path):
         self._object_path = object_path
         self._object = cv.imread(object_path, cv.IMREAD_UNCHANGED)
         self._object_height = self._object.shape[0]
         self._object_width = self._object.shape[1]
 
-    def get_objects_coordinates_from_image(self, image):
-        objects = cv.matchTemplate(
-            image, self._object, self._params["detection_method"]
-        )
-        objects = list(
-            zip(*np.where(objects >= self._params["detection_threshold"])[::-1])
-        )
+    def get_detected_objects_as_rectangles(self, image):
+        objects = cv.matchTemplate(image, self._object, DETECTION_METHOD)
+        objects = list(zip(*np.where(objects >= DETECTION_THRESHOLD)[::-1]))
         if not objects:
-            return np.array([], dtype=np.int32).reshape(0, 4)
-        return objects
-
-    def _get_rectangles_position_over_targets(self, targets):
-        rectangles = []
-        for target in targets:
-            rectangle = [
-                int(target[0]),
-                int(target[1]),
-                self._target_image_width,
-                self._target_image_height,
+            return []
+        rects = []
+        for obj in objects:
+            rect = [
+                int(obj[0]),
+                int(obj[1]),
+                self._object_width,
+                self._object_height,
             ]
             # Add every box to the list twice in order to retain single (non-overlapping) boxes
-            rectangles.append(rectangle)
-            rectangles.append(rectangle)
-        grouped_rectangles = cv.groupRectangles(
-            rectangles, self._group_treshold, self._group_eps
-        )[0]
-        return grouped_rectangles[: self._max_results]
+            rects.append(rect)
+            rects.append(rect)
+        grouped_rects = cv.groupRectangles(rects, GROUPING_TRESHOLD, GROUPING_EPS)[0]
+        return grouped_rects[:DETECTION_MAX_RESULTS]
 
-    def _draw_rectangles(self, screenshot, rectangles):
+    @staticmethod
+    def draw_rectangles_on_image(screenshot, rectangles):
         for x, y, width, height in rectangles:
             top_left = (x, y)
             bottom_right = (x + width, y + height)
-            cv.rectangle(
-                screenshot, top_left, bottom_right, self._line_color, self._line_type
-            )
-        return screenshot
+            cv.rectangle(screenshot, top_left, bottom_right, LINE_COLOR, LINE_TYPE)
 
-    def _get_center_points_from_rectangles(rectangles):
+    @staticmethod
+    def get_center_points_from_rectangles(rectangles):
         points = []
         for x, y, width, height in rectangles:
             center_x = x + int(width / 2)
             center_y = y + int(height / 2)
             points.append((center_x, center_y))
         return points
-
-    def dump_params_to_document(self):
-        dump_yaml_document(self._params, self._params_path)
-
-    def _load_params_from_document(self):
-        return load_yaml_document(self._params_path)

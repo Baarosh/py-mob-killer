@@ -53,8 +53,6 @@ class WindowScreenCapturer:
 
     def _get_window_handler(self):
         try:
-            window_handler = win32gui.FindWindow(None, self._window_name)
+            return win32gui.FindWindow(None, self._window_name)
         except Exception as e:
             raise Exception(f"Window with given name cannot be found. Traceback: {e}")
-        else:
-            return window_handler
