@@ -67,5 +67,5 @@ class HSVFilter:
     def dump_params_to_document(self):
         dump_yaml_document(self._params, self._params_path)
 
-    def _load_params_from_document(self):
+    def load_params_from_document(self):
         return load_yaml_document(self._params_path)

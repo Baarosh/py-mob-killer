@@ -5,14 +5,14 @@ from py_mob_killer.utils import dump_yaml_document, load_yaml_document
 
 class ObjectDetector:
     def __init__(self, object_path, params_path):
-        self._object_path = object_path
         self._params_path = params_path
-        self._object = cv.imread(object_path, cv.IMREAD_UNCHANGED)
         self._params = self._load_params_from_document()
+        self._object_path = object_path
+        self._object = cv.imread(object_path, cv.IMREAD_UNCHANGED)
         self._object_height = self._object.shape[0]
         self._object_width = self._object.shape[1]
 
-    def _detect_objects_on_image(self, image):
+    def get_objects_coordinates_from_image(self, image):
         objects = cv.matchTemplate(
             image, self._object, self._params["detection_method"]
         )
