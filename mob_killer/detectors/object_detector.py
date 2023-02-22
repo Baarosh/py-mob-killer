@@ -17,7 +17,7 @@ class ObjectDetector:
         self._object_height = self._object.shape[0]
         self._object_width = self._object.shape[1]
 
-    def get_detected_objects_as_rectangles(self, image):
+    def detect_objects(self, image):
         objects = cv.matchTemplate(image, self._object, DETECTION_METHOD)
         objects = list(zip(*np.where(objects >= DETECTION_THRESHOLD)[::-1]))
         if not objects:
@@ -37,14 +37,14 @@ class ObjectDetector:
         return grouped_rects[:DETECTION_MAX_RESULTS]
 
     @staticmethod
-    def draw_rectangles_on_image(screenshot, rectangles):
+    def draw_rectangles(screenshot, rectangles):
         for x, y, width, height in rectangles:
             top_left = (x, y)
             bottom_right = (x + width, y + height)
             cv.rectangle(screenshot, top_left, bottom_right, LINE_COLOR, LINE_TYPE)
 
     @staticmethod
-    def get_center_points_from_rectangles(rectangles):
+    def get_center_points(rectangles):
         points = []
         for x, y, width, height in rectangles:
             center_x = x + int(width / 2)

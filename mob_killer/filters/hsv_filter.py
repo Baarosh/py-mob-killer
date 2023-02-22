@@ -1,6 +1,6 @@
 import numpy as np
 import cv2 as cv
-from py_mob_killer.utils import dump_yaml_document, load_yaml_document
+from mob_killer.utils import dump_yaml_document, load_yaml_document
 
 
 class HSVFilter:
@@ -52,7 +52,7 @@ class HSVFilter:
             c[c > lim] -= amount
         return c
 
-    def initialize_calibration_gui(self):
+    def init_calibration_gui(self):
         cv.namedWindow(self._gui_window_name, cv.WINDOW_NORMAL)
         cv.resizeWindow(self._gui_window_name, 350, 700)
         for param in self._params:
@@ -62,12 +62,12 @@ class HSVFilter:
                 cv.createTrackbar(param, self._gui_window_name, 0, 255, ...)
             cv.setTrackbarPos(param, self._gui_window_name, param)
 
-    def update_params_from_calibration_gui(self):
+    def update_params_from_gui(self):
         for param in self._params:
             self._params[param] = cv.getTrackbarPos(param, self._gui_window_name)
 
-    def dump_params_to_document(self):
+    def dump_params_to_file(self):
         dump_yaml_document(self._params, self._params_path)
 
-    def _load_params_from_document(self):
+    def _load_params_from_file(self):
         return load_yaml_document(self._params_path)
