@@ -7,14 +7,13 @@ from mob_killer.utils import run, run_debug
 
 CALIBRATION_MODE = True
 BOT_ACTIVE = True
-WINDOW_NAME = "Ghost FlyFF - Mandarynka"
-WINDOW_OFFSET = (10, 30, -10, -10)
+WINDOW_NAME = "Ghost Flyff - Mandarynka"
 FILTER_PARAMS_PATH = Path().joinpath("mob_killer", "filters", "hsv_filter_params.yaml")
 MONSTER_IMG_PATH = Path().joinpath("mob_killer", "targets", "monster_augu_nickname.jpg")
 PLAYER_IMG_PATH = Path().joinpath("mob_killer", "targets", "player_nickname.jpg")
 
 if __name__ == "__main__":
-    window_screen_capturer = WindowScreenCapturer(WINDOW_NAME, WINDOW_OFFSET)
+    window_screen_capturer = WindowScreenCapturer(WINDOW_NAME)
     hsv_filter = HSVFilter(FILTER_PARAMS_PATH)
     monster_processor = ObjectDetector(MONSTER_IMG_PATH)
     player_processor = ObjectDetector(PLAYER_IMG_PATH)

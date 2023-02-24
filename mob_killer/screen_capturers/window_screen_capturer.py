@@ -5,31 +5,35 @@ import win32ui
 
 
 class WindowScreenCapturer:
-    def __init__(self, window_name, offset):
+    BORDER_PIXELS = 8
+    TOPBAR_PIXELS = 31
+
+    def __init__(self, window_name):
         self._window_name = window_name
-        self._offset = offset
+        self._border_pixels = self.BORDER_PIXELS
+        self._topbar_pixels = self.TOPBAR_PIXELS
         self._handler = self._get_window_handler()
-        self._coordinates = self._get_window_coordinates()
-        self._width = self._coordinates["right"] - self._coordinates["left"]
-        self._height = self._coordinates["bottom"] - self._coordinates["top"]
+        self._coordinates = self._get_window_coordinates() # left, top, width, height
 
     def make_screenshot(self):
         wDC = win32gui.GetWindowDC(self._handler)
         dcObj = win32ui.CreateDCFromHandle(wDC)
         cDC = dcObj.CreateCompatibleDC()
         dataBitMap = win32ui.CreateBitmap()
-        dataBitMap.CreateCompatibleBitmap(dcObj, self._width, self._height)
+        dataBitMap.CreateCompatibleBitmap(
+            dcObj, self._coordinates["width"], self._coordinates["height"]
+        )
         cDC.SelectObject(dataBitMap)
         cDC.BitBlt(
             (0, 0),
-            (self._width, self._height),
+            (self._coordinates["width"], self._coordinates["height"]),
             dcObj,
-            (self._offset[0], self._offset[1]),
+            (self._border_pixels, self._topbar_pixels),
             win32con.SRCCOPY,
         )
         signedIntsArray = dataBitMap.GetBitmapBits(True)
         img = np.fromstring(signedIntsArray, dtype="uint8")
-        img.shape = (self._height, self._width, 4)
+        img.shape = (self._coordinates["height"], self._coordinates["width"], 4)
         dcObj.DeleteDC()
         cDC.DeleteDC()
         win32gui.ReleaseDC(self._handler, wDC)
@@ -45,10 +49,10 @@ class WindowScreenCapturer:
             raise Exception(f"Window coordinates cannot be found. Traceback: {e}")
         else:
             return {
-                "left": window_size[0] + self._offset[0],
-                "top": window_size[1] + self._offset[1],
-                "right": window_size[2] + self._offset[2],
-                "bottom": window_size[3] + self._offset[3],
+                "left": window_size[0] + self._border_pixels,
+                "top": window_size[1],
+                "width": (window_size[2] - window_size[0]) - (2 * self._border_pixels),
+                "height": (window_size[3] - window_size[1]) - self._border_pixels - self._topbar_pixels,
             }
 
     def _get_window_handler(self):
@@ -56,3 +60,7 @@ class WindowScreenCapturer:
             return win32gui.FindWindow(None, self._window_name)
         except Exception as e:
             raise Exception(f"Window with given name cannot be found. Traceback: {e}")
+
+    @property
+    def coordinates(self):
+        return self._coordinates

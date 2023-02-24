@@ -8,7 +8,7 @@ class HSVFilter:
 
     def __init__(self, params_path):
         self._params_path = params_path
-        self._params = self._load_params_from_document()
+        self._params = self._load_params_from_file()
         self._gui_window_name = self.GUI_WINDOW_NAME
 
     def apply(self, screenshot):
@@ -57,10 +57,10 @@ class HSVFilter:
         cv.resizeWindow(self._gui_window_name, 350, 700)
         for param in self._params:
             if self._params[param] in ("hMin", "hMax"):
-                cv.createTrackbar(param, self._gui_window_name, 0, 179, ...)
+                cv.createTrackbar(param, self._gui_window_name, 0, 179, lambda x: None)
             else:
-                cv.createTrackbar(param, self._gui_window_name, 0, 255, ...)
-            cv.setTrackbarPos(param, self._gui_window_name, param)
+                cv.createTrackbar(param, self._gui_window_name, 0, 255, lambda x: None)
+            cv.setTrackbarPos(param, self._gui_window_name, self._params[param])
 
     def update_params_from_gui(self):
         for param in self._params:
