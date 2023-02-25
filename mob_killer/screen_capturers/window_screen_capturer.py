@@ -50,7 +50,7 @@ class WindowScreenCapturer:
         else:
             return {
                 "left": window_size[0] + self._border_pixels,
-                "top": window_size[1],
+                "top": window_size[1] + self._topbar_pixels,
                 "width": (window_size[2] - window_size[0]) - (2 * self._border_pixels),
                 "height": (window_size[3] - window_size[1])
                 - self._border_pixels
