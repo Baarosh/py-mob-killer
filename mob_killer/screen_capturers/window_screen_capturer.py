@@ -13,7 +13,7 @@ class WindowScreenCapturer:
         self._border_pixels = self.BORDER_PIXELS
         self._topbar_pixels = self.TOPBAR_PIXELS
         self._handler = self._get_window_handler()
-        self._coordinates = self._get_window_coordinates() # left, top, width, height
+        self._coordinates = self._get_window_coordinates()  # left, top, width, height
 
     def make_screenshot(self):
         wDC = win32gui.GetWindowDC(self._handler)
@@ -52,7 +52,9 @@ class WindowScreenCapturer:
                 "left": window_size[0] + self._border_pixels,
                 "top": window_size[1],
                 "width": (window_size[2] - window_size[0]) - (2 * self._border_pixels),
-                "height": (window_size[3] - window_size[1]) - self._border_pixels - self._topbar_pixels,
+                "height": (window_size[3] - window_size[1])
+                - self._border_pixels
+                - self._topbar_pixels,
             }
 
     def _get_window_handler(self):

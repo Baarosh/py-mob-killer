@@ -33,4 +33,3 @@ class ObjectDetector:
             rects.append(rect)
         grouped_rects = cv.groupRectangles(rects, GROUPING_TRESHOLD, GROUPING_EPS)[0]
         return grouped_rects[:DETECTION_MAX_RESULTS]
-
