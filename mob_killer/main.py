@@ -24,7 +24,8 @@ if __name__ == "__main__":
             window_screen_capturer,
             hsv_filter,
             monster_processor,
-            player_processor
+            player_processor,
+            killing_bot,
         )
     else:
         run(

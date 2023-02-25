@@ -87,6 +87,7 @@ def run_debug(
     hsv_filter,
     monster_processor,
     player_processor,
+    killing_bot,
 ):
     hsv_filter.init_calibration_gui()
     win_coords = window_screen_capturer.coordinates
@@ -94,15 +95,25 @@ def run_debug(
     hit_points_coords = get_hit_points_coords(win_coords)
     last_hp_pixel_color = [255,255,255]
     while True:
-        raw_screenshot = window_screen_capturer.make_screenshot()
-        filtered_screenshot = hsv_filter.apply(raw_screenshot)
-        hsv_filter.update_params_from_gui()
-        monsters_position = monster_processor.detect_objects(raw_screenshot)
-        player_position = player_processor.detect_objects(filtered_screenshot)
-        hp_pixel = filtered_screenshot[
-            get_center_point_from_rect(hit_points_coords)
-        ]
-        hp_pixel_color = [hp_pixel[0], hp_pixel[1], hp_pixel[2]]
+        if killing_bot.state == BotState.SEARCHING:
+            raw_screenshot = window_screen_capturer.make_screenshot()
+            filtered_screenshot = hsv_filter.apply(raw_screenshot)
+            hsv_filter.update_params_from_gui()
+            monsters_position = monster_processor.detect_objects(raw_screenshot)
+            player_position = player_processor.detect_objects(filtered_screenshot)
+            hp_pixel = filtered_screenshot[
+                get_center_point_from_rect(hit_points_coords)
+            ]
+            hp_pixel_color = [hp_pixel[0], hp_pixel[1], hp_pixel[2]]
+            killing_bot.action(monsters_position,player_position,hp_pixel_color)
+        if killing_bot.state == BotState.ATTACKING:
+            raw_screenshot = window_screen_capturer.make_screenshot()
+            filtered_screenshot = hsv_filter.apply(raw_screenshot)
+            hp_pixel = filtered_screenshot[
+                get_center_point_from_rect(hit_points_coords)
+            ]
+            hp_pixel_color = [hp_pixel[0], hp_pixel[1], hp_pixel[2]]
+            killing_bot.action(None,None,hp_pixel_color)
 
         draw_rectangles(filtered_screenshot, monsters_position)
         draw_rectangles(filtered_screenshot, player_position)
