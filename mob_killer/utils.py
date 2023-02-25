@@ -6,17 +6,10 @@ from cv2 import (
     rectangle as cv_rectangle,
     LINE_4 as cv_LINE_4,
 )
-from enum import IntEnum
+from mob_killer.bots.bot import BotState
 
 LINE_COLOR = (255, 0, 255)
 LINE_TYPE = cv_LINE_4
-
-
-class State(IntEnum):
-    INITIALIZING = 0
-    SEARCHING = 1
-    MOVING = 2
-    ATTACKING = 3
 
 
 def load_yaml_document(path):
@@ -67,12 +60,23 @@ def run(
     player_processor,
     killing_bot,
 ):
+    win_coords = window_screen_capturer.coordinates
+    hit_points_coords = get_hit_points_coords(win_coords)
     while True:
-        raw_screenshot = window_screen_capturer.make_screenshot()
-        filtered_screenshot = hsv_filter.apply(raw_screenshot)
-        monsters_position = monster_processor.detect_objects(filtered_screenshot)
-        player_position = player_processor.detect_objects(filtered_screenshot)
-
+        if killing_bot.state == BotState.SEARCHING:
+            raw_screenshot = window_screen_capturer.make_screenshot()
+            filtered_screenshot = hsv_filter.apply(raw_screenshot)
+            monsters_position = monster_processor.detect_objects(filtered_screenshot)
+            player_position = player_processor.detect_objects(filtered_screenshot)
+            hp_pixel = filtered_screenshot[
+                get_center_point_from_rect(hit_points_coords)
+            ]
+            hp_pixel_color = [hp_pixel[0], hp_pixel[1], hp_pixel[2]]
+            killing_bot.action(monsters_position, player_position, hp_pixel_color)
+        if killing_bot.state == BotState.ATTACKING:
+            ...
+        if killing_bot.state == BotState.MOVING:
+            ...
         if cv_waitKey(1) == ord("q"):
             cv_destroyAllWindows()
             break
@@ -83,11 +87,10 @@ def run_debug(
     hsv_filter,
     monster_processor,
     player_processor,
-    killing_bot,
 ):
     hsv_filter.init_calibration_gui()
     win_coords = window_screen_capturer.coordinates
-    print(win_coords)
+    print('Window coords: ', win_coords)
     hit_points_coords = get_hit_points_coords(win_coords)
     last_hp_pixel_color = [255,255,255]
     while True:

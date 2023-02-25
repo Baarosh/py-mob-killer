@@ -17,15 +17,14 @@ if __name__ == "__main__":
     hsv_filter = HSVFilter(FILTER_PARAMS_PATH)
     monster_processor = ObjectDetector(MONSTER_IMG_PATH)
     player_processor = ObjectDetector(PLAYER_IMG_PATH)
-    killing_bot = Bot()
+    killing_bot = Bot(window_screen_capturer.coordinates)
 
     if CALIBRATION_MODE:
         run_debug(
             window_screen_capturer,
             hsv_filter,
             monster_processor,
-            player_processor,
-            killing_bot,
+            player_processor
         )
     else:
         run(
