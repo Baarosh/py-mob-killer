@@ -1,5 +1,6 @@
 from enum import IntEnum
 from math import sqrt
+from random import randint
 from time import sleep
 
 import pyautogui
@@ -15,10 +16,10 @@ class Bot:
 
     def __init__(self, window_coordinates):
         self._window_coords = window_coordinates
-        self._object = None
 
     def make_action(self, objects_positions):
-        ...
+        object = self._get_closest_object(objects_positions)
+        self._click_on_object(object)
 
     def _get_closest_object(self, objects_positions):
         center_x = self._window_coords["left"] + int(self._window_coords["width"] / 2)
@@ -35,7 +36,7 @@ class Bot:
 
     def _click_on_object(object_position):
         pyautogui.moveTo(x=object_position[0], y=object_position[1])
-        sleep(0.350)
+        sleep(randint(15, 35) * 0.01)
         pyautogui.click()
 
     @staticmethod

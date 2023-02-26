@@ -12,7 +12,7 @@ from mob_killer.utils import draw_rectangles, get_center_points, show_image
 CALIBRATION_MODE = True
 WINDOW_NAME = "Ghost Flyff - Mandarynka"
 FILTER_PARAMS_PATH = Path().joinpath("mob_killer", "filters", "hsv_filter_params.yaml")
-MONSTER_IMG_PATH = Path().joinpath("mob_killer", "targets", "monster_augu_nickname.jpg")
+MONSTER_IMG_PATH = Path().joinpath("mob_killer", "targets", "grim_augu.jpg")
 
 
 def run(
@@ -46,14 +46,14 @@ if __name__ == "__main__":
 
     while True:
         raw_image = window_screen_capturer.make_screenshot()
-        filtered_image = hsv_filter.apply(raw_image)
         hsv_filter.update_params_from_gui()
-        objects_positions = object_detector.detect_all(raw_image)
+        filtered_image = hsv_filter.apply(raw_image)
+        objects_positions = object_detector.detect_all(filtered_image)
         draw_rectangles(filtered_image, objects_positions)
         show_image("Eyes of bot", filtered_image)
 
         objects_points = get_center_points(objects_positions)
-        bot.make_action(objects_points)
+        # bot.make_action(objects_points)
 
         if waitKey(1) == ord("q"):
             destroyAllWindows()

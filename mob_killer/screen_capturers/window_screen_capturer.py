@@ -56,11 +56,11 @@ class WindowScreenCapturer:
             raise Exception(f"Window coordinates cannot be found. Traceback: {e}")
         else:
             left = window_size[0] + self._border_pixels
-            top = window_size[1] + self._topbar_pixels
+            top = window_size[1]
             width = window_size[2] - window_size[0]
-            width -= 2 * self._border_pixels
+            width -= (2 * self._border_pixels)
             height = window_size[3] - window_size[1]
-            height -= self._border_pixels - self._topbar_pixels
+            height -= (self._border_pixels + self._topbar_pixels)
             return {
                 "left": left,
                 "top": top,

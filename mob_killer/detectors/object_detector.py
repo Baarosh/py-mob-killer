@@ -3,7 +3,7 @@ import numpy as np
 
 
 class ObjectDetector:
-    _detection_treshold = 0.45
+    _detection_treshold = 0.65
     _detection_method = cv.TM_CCOEFF_NORMED
     _detection_max_results = None
     _grouping_treshold = 1
